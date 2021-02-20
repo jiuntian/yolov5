@@ -530,7 +530,7 @@ def apply_classifier(x, model, img, im0, half):
     # applies a second stage classifier to yolo outputs
     im0 = [im0] if isinstance(im0, np.ndarray) else im0
     for i, d in enumerate(x):  # per image
-        pred_cls2 = torch.tensor([]).to(d.device)
+        pred_cls2 = []
         if d is not None and len(d):
             d = d.clone()
 
@@ -557,7 +557,7 @@ def apply_classifier(x, model, img, im0, half):
                 b_img = torch.Tensor(ims[j * 4:j * 4 + 4]).to(d.device)
                 if half:
                     b_img = b_img.half()
-                pred_cls2 = torch.cat([pred_cls2, model(b_img).argmax(1)])  # classifier prediction
+                pred_cls2.append(model(b_img).argmax(1))  # classifier prediction
 
     return pred_cls2
 
