@@ -218,7 +218,7 @@ def model_info(model, verbose=False, img_size=640):
 
 def load_classifier(name='resnet101', n=4):
     # Loads a pretrained model reshaped to n-class output
-    model = torchvision.models.__dict__[name](pretrained=True)
+    model = torchvision.models.__dict__[name](pretrained=False)
 
     # ResNet model properties
     # input_size = [3, 224, 224]

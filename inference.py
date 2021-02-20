@@ -50,11 +50,11 @@ def detect():
         if img.ndimension() == 3:
             img = img.unsqueeze(0)
         # Inference
-        t1 = time_synchronized()
+        # t1 = time_synchronized()
         pred = model(img)[0]
         # Apply NMS
         pred = non_max_suppression(pred, opt.conf_thres, opt.iou_thres, agnostic=opt.agnostic_nms)
-        t2 = time_synchronized()
+        # t2 = time_synchronized()
 
         # Apply Classifier
         if classify and len(pred):
@@ -87,7 +87,7 @@ def detect():
                         "score": conf.item()
                     })
             # Print time (inference + NMS)
-            print(f'{s}Done. ({t2 - t1:.3f}s)')
+            # print(f'{s}Done. ({t2 - t1:.3f}s)')
     print(f'Done. ({time.time() - t0:.3f}s)')
     with open(save_dir / 'result.json', 'w') as outfile:
         json.dump(result, outfile)
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
     parser.add_argument('--export-dir', default='inference', help='save results to dir')
     parser.add_argument('--exist-ok', action='store_true', help='existing dir ok, do not increment')
-    parser.add_argument('--second-stage', type=str, default='../crop_mobilenet_state_dict.pt', help='second stage model ckpt')  # file/folder, 0 for webcam
+    parser.add_argument('--second-stage', type=str, default='', help='second stage model ckpt')  # file/folder, 0 for webcam
     # python inference.py --source ../ictext/valtest --weights ../../Downloads/best.pt --exist-ok
     opt = parser.parse_args()
     print(opt)
