@@ -35,6 +35,7 @@ def detect():
         modelc = load_classifier(name='mobilenet_v2', n=4)  # initialize
         modelc.load_state_dict(torch.load(opt.second_stage, map_location=device))
         modelc = modelc.to(device).eval()
+        modelc.half()
     cudnn.benchmark = True  # set True to speed up consant image size inference
     dataset = LoadImages(source, img_size=imgsz, stride=stride)
 

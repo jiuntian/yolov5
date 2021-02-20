@@ -553,8 +553,8 @@ def apply_classifier(x, model, img, im0):
                 im = np.ascontiguousarray(im, dtype=np.float32)  # uint8 to float32
                 im /= 255.0  # 0 - 255 to 0.0 - 1.0
                 ims.append(im)
-
-            pred_cls2 = model(torch.Tensor(ims).to(d.device)).argmax(1)  # classifier prediction
+            for j in range(-(len(ims)//-4)):
+                pred_cls2 = torch.cat([pred_cls2, model(torch.Tensor(ims[j*4:j*4+4]).to(d.device)).argmax(1)])  # classifier prediction
 
     return pred_cls2
 
