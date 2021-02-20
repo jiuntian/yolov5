@@ -216,7 +216,7 @@ def model_info(model, verbose=False, img_size=640):
     logger.info(f"Model Summary: {len(list(model.modules()))} layers, {n_p} parameters, {n_g} gradients{fs}")
 
 
-def load_classifier(name='resnet101', n=2):
+def load_classifier(name='resnet101', n=4):
     # Loads a pretrained model reshaped to n-class output
     model = torchvision.models.__dict__[name](pretrained=True)
 
@@ -228,10 +228,7 @@ def load_classifier(name='resnet101', n=2):
     # std = [0.229, 0.224, 0.225]
 
     # Reshape output to n classes
-    filters = model.fc.weight.shape[1]
-    model.fc.bias = nn.Parameter(torch.zeros(n), requires_grad=True)
-    model.fc.weight = nn.Parameter(torch.zeros(n, filters), requires_grad=True)
-    model.fc.out_features = n
+    model.classifier[1] = torch.nn.Linear(in_features=model.classifier[1].in_features, out_features=n)
     return model
 
 

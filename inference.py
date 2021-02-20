@@ -5,12 +5,13 @@ from pathlib import Path
 
 import torch
 import torch.backends.cudnn as cudnn
+import numpy as np
 
 from models.experimental import attempt_load
 from utils.datasets import LoadImages
 from utils.general import check_img_size, check_requirements, non_max_suppression, \
-    scale_coords, increment_path
-from utils.torch_utils import select_device, time_synchronized
+    scale_coords, increment_path, apply_classifier
+from utils.torch_utils import select_device, time_synchronized, load_classifier
 
 
 def detect():
@@ -27,7 +28,14 @@ def detect():
     imgsz = check_img_size(imgsz, s=stride)  # check img_size
     if half:
         model.half()  # to FP16
-    cudnn.benchmark = True  # set True to speed up constant image size inference
+    # Second-stage classifier
+    classify = opt.second_stage
+    if classify:
+        print("Enabled second stage classifier")
+        modelc = load_classifier(name='mobilenet_v2', n=4)  # initialize
+        modelc.load_state_dict(torch.load(opt.second_stage, map_location=device))
+        modelc = modelc.to(device).eval()
+    cudnn.benchmark = True  # set True to speed up consant image size inference
     dataset = LoadImages(source, img_size=imgsz, stride=stride)
 
     # Run inference
@@ -47,6 +55,16 @@ def detect():
         # Apply NMS
         pred = non_max_suppression(pred, opt.conf_thres, opt.iou_thres, agnostic=opt.agnostic_nms)
         t2 = time_synchronized()
+
+        # Apply Classifier
+        if classify:
+            pred_second_stage = apply_classifier(pred, modelc, img, im0s)
+            aesthetics = np.zeros((pred_second_stage.shape[0], 3))
+            for i in range(pred_second_stage.shape[0]):
+                a_label = pred_second_stage[i]
+                if a_label < 3:
+                    aesthetics[i][a_label] = 1
+
         # Process detections
         for i, det in enumerate(pred):  # detections per image
             p, s, im0, frame = path, '', im0s, getattr(dataset, 'frame', 0)
@@ -61,7 +79,7 @@ def detect():
                     result.append({
                         "image_id": int(p.name[:-4]),
                         "category_id": int(cls.item())+1,
-                        "aesthetic": [0, 0, 0],
+                        "aesthetic": aesthetics[i].astype(int).tolist() if classify else [0, 0, 0],
                         "bbox": [xyxy[0].item(), xyxy[1].item(),
                                  xyxy[2].item(), xyxy[1].item(),
                                  xyxy[2].item(), xyxy[3].item(),
@@ -86,6 +104,7 @@ if __name__ == '__main__':
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
     parser.add_argument('--export-dir', default='inference', help='save results to dir')
     parser.add_argument('--exist-ok', action='store_true', help='existing dir ok, do not increment')
+    parser.add_argument('--second-stage', type=str, default='../crop_mobilenet_state_dict.pt', help='second stage model ckpt')  # file/folder, 0 for webcam
     # python inference.py --source ../ictext/valtest --weights ../../Downloads/best.pt --exist-ok
     opt = parser.parse_args()
     print(opt)

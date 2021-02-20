@@ -542,12 +542,10 @@ def apply_classifier(x, model, img, im0):
             # Rescale boxes from img_size to im0 size
             scale_coords(img.shape[2:], d[:, :4], im0[i].shape)
 
-            # Classes
-            pred_cls1 = d[:, 5].long()
             ims = []
             for j, a in enumerate(d):  # per item
                 cutout = im0[i][int(a[1]):int(a[3]), int(a[0]):int(a[2])]
-                im = cv2.resize(cutout, (224, 224))  # BGR
+                im = cv2.resize(cutout, (64, 64))  # BGR
                 # cv2.imwrite('test%i.jpg' % j, cutout)
 
                 im = im[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
@@ -556,9 +554,8 @@ def apply_classifier(x, model, img, im0):
                 ims.append(im)
 
             pred_cls2 = model(torch.Tensor(ims).to(d.device)).argmax(1)  # classifier prediction
-            x[i] = x[i][pred_cls1 == pred_cls2]  # retain matching class detections
 
-    return x
+    return pred_cls2
 
 
 def increment_path(path, exist_ok=True, sep=''):
