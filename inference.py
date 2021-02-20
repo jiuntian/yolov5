@@ -37,7 +37,7 @@ def detect():
         modelc = modelc.to(device).eval()
         if half:
             modelc.half()
-    cudnn.benchmark = True  # set True to speed up consant image size inference
+    # cudnn.benchmark = True  # set True to speed up consant image size inference
     dataset = LoadImages(source, img_size=imgsz, stride=stride)
 
     # Run inference
