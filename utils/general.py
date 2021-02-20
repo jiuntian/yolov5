@@ -530,7 +530,7 @@ def apply_classifier(x, model, img, im0, half):
     # applies a second stage classifier to yolo outputs
     im0 = [im0] if isinstance(im0, np.ndarray) else im0
     for i, d in enumerate(x):  # per image
-        pred_cls2 = torch.tensor([], dtype=torch.int)
+        pred_cls2 = torch.tensor([], dtype=torch.int).to(d.device)
         if d is not None and len(d):
             d = d.clone()
             # Reshape and pad cutouts
