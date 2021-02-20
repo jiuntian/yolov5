@@ -530,10 +530,9 @@ def apply_classifier(x, model, img, im0, half):
     # applies a second stage classifier to yolo outputs
     im0 = [im0] if isinstance(im0, np.ndarray) else im0
     for i, d in enumerate(x):  # per image
-        pred_cls2 = []
+        pred_cls2 = torch.tensor([], dtype=torch.int)
         if d is not None and len(d):
             d = d.clone()
-
             # Reshape and pad cutouts
             b = xyxy2xywh(d[:, :4])  # boxes
             b[:, 2:] = b[:, 2:].max(1)[0].unsqueeze(1)  # rectangle to square
@@ -547,7 +546,6 @@ def apply_classifier(x, model, img, im0, half):
             for j, a in enumerate(d):  # per item
                 cutout = im0[i][int(a[1]):int(a[3]), int(a[0]):int(a[2])]
                 im = cv2.resize(cutout, (64, 64))  # BGR
-                # cv2.imwrite('test%i.jpg' % j, cutout)
 
                 im = im[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
                 im = np.ascontiguousarray(im, dtype=np.float32)  # uint8 to float32
@@ -557,7 +555,7 @@ def apply_classifier(x, model, img, im0, half):
                 b_img = torch.Tensor(ims[j * 4:j * 4 + 4]).to(d.device)
                 if half:
                     b_img = b_img.half()
-                pred_cls2.append(model(b_img).argmax(1))  # classifier prediction
+                pred_cls2 = torch.cat([pred_cls2, model(b_img).argmax(1)])  # classifier prediction
 
     return pred_cls2
 
