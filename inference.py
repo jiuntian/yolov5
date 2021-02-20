@@ -57,7 +57,7 @@ def detect():
         t2 = time_synchronized()
 
         # Apply Classifier
-        if classify:
+        if classify and len(pred):
             pred_second_stage = apply_classifier(pred, modelc, img, im0s)
             aesthetics = np.zeros((pred_second_stage.shape[0], 3))
             for i in range(pred_second_stage.shape[0]):

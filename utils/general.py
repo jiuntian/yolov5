@@ -530,6 +530,7 @@ def apply_classifier(x, model, img, im0):
     # applies a second stage classifier to yolo outputs
     im0 = [im0] if isinstance(im0, np.ndarray) else im0
     for i, d in enumerate(x):  # per image
+        pred_cls2 = torch.tensor([]).to(d.device)
         if d is not None and len(d):
             d = d.clone()
 
