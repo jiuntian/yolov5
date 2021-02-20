@@ -551,8 +551,8 @@ def apply_classifier(x, model, img, im0, half):
                 im = np.ascontiguousarray(im, dtype=np.float32)  # uint8 to float32
                 im /= 255.0  # 0 - 255 to 0.0 - 1.0
                 ims.append(im)
-            for j in range(-(len(ims) // -4)):
-                b_img = torch.Tensor(ims[j * 4:j * 4 + 4]).to(d.device)
+            for j in range(-(len(ims) // -8)):
+                b_img = torch.Tensor(ims[j * 8:j * 8 + 8]).to(d.device)
                 if half:
                     b_img = b_img.half()
                 pred_cls2 = torch.cat([pred_cls2, model(b_img).argmax(1)])  # classifier prediction
