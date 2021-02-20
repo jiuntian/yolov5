@@ -61,11 +61,9 @@ def detect():
         # Apply Classifier
         if classify and len(pred):
             pred_second_stage = apply_classifier(pred, modelc, img, im0s, half).cpu()
-            print(pred_second_stage.shape)
-            print(pred_second_stage[0])
             aesthetics = np.zeros((pred_second_stage.shape[0], 3))
             for i in range(pred_second_stage.shape[0]):
-                a_label = pred_second_stage[i]
+                a_label = pred_second_stage[i].item()
                 if a_label < 3:
                     aesthetics[i][a_label] = 1
 
