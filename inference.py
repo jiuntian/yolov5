@@ -35,7 +35,8 @@ def detect():
         modelc = load_classifier(name='mobilenet_v2', n=4)  # initialize
         modelc.load_state_dict(torch.load(opt.second_stage, map_location=device))
         modelc = modelc.to(device).eval()
-        modelc.half()
+        if half:
+            modelc.half()
     cudnn.benchmark = True  # set True to speed up consant image size inference
     dataset = LoadImages(source, img_size=imgsz, stride=stride)
 
@@ -59,7 +60,7 @@ def detect():
 
         # Apply Classifier
         if classify and len(pred):
-            pred_second_stage = apply_classifier(pred, modelc, img, im0s)
+            pred_second_stage = apply_classifier(pred, modelc, img, im0s, half)
             aesthetics = np.zeros((pred_second_stage.shape[0], 3))
             for i in range(pred_second_stage.shape[0]):
                 a_label = pred_second_stage[i]

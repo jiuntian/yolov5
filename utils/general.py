@@ -526,7 +526,7 @@ def print_mutation(hyp, results, yaml_file='hyp_evolved.yaml', bucket=''):
         os.system('gsutil cp evolve.txt %s gs://%s' % (yaml_file, bucket))  # upload
 
 
-def apply_classifier(x, model, img, im0):
+def apply_classifier(x, model, img, im0, half):
     # applies a second stage classifier to yolo outputs
     im0 = [im0] if isinstance(im0, np.ndarray) else im0
     for i, d in enumerate(x):  # per image
@@ -554,7 +554,10 @@ def apply_classifier(x, model, img, im0):
                 im /= 255.0  # 0 - 255 to 0.0 - 1.0
                 ims.append(im)
             for j in range(-(len(ims)//-4)):
-                pred_cls2 = torch.cat([pred_cls2, model(torch.Tensor(ims[j*4:j*4+4]).to(d.device)).argmax(1)])  # classifier prediction
+                b_img = torch.Tensor(ims[j*4:j*4+4]).to(d.device)
+                if half:
+                    b_img.half()
+                pred_cls2 = torch.cat([pred_cls2, model(b_img).argmax(1)])  # classifier prediction
 
     return pred_cls2
 
