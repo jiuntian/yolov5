@@ -60,7 +60,7 @@ def detect():
 
         # Apply Classifier
         if classify and len(pred):
-            pred_second_stage = apply_classifier(pred, modelc, img, im0s, half)
+            pred_second_stage = apply_classifier(pred, modelc, img, im0s, half).cpu()
             print(pred_second_stage.shape)
             print(pred_second_stage[0])
             aesthetics = np.zeros((pred_second_stage.shape[0], 3))
