@@ -1,5 +1,6 @@
 import argparse
 import json
+import sys
 import time
 from pathlib import Path
 
@@ -61,11 +62,12 @@ def detect():
         # Apply Classifier
         if classify and len(pred):
             pred_second_stage = apply_classifier(pred, modelc, img, im0s, half)
-            aesthetics = np.zeros((len(pred_second_stage), 3))
+            aesthetics = np.zeros((len(pred_second_stage), len(pred_second_stage[0]), 3))
             for i in range(len(pred_second_stage)):
-                a_label = pred_second_stage[i]
-                if a_label < 3:
-                    aesthetics[i][a_label] = 1
+                for j in range(len(pred_second_stage[0])):
+                    a_label = pred_second_stage[i][j]
+                    if a_label < 3:
+                        aesthetics[i][j][a_label] = 1
 
         # Process detections
         for i, det in enumerate(pred):  # detections per image
@@ -77,11 +79,11 @@ def detect():
                 # Rescale boxes from img_size to im0 size
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
                 # Write results
-                for *xyxy, conf, cls in reversed(det):
+                for j, (*xyxy, conf, cls) in enumerate(det):
                     result.append({
                         "image_id": int(p.name[:-4]),
                         "category_id": int(cls.item())+1,
-                        "aesthetic": aesthetics[i].astype(int).tolist() if classify else [0, 0, 0],
+                        "aesthetic": aesthetics[i][j].astype(int).tolist() if classify else [0, 0, 0],
                         "bbox": [xyxy[0].item(), xyxy[1].item(),
                                  xyxy[2].item(), xyxy[1].item(),
                                  xyxy[2].item(), xyxy[3].item(),

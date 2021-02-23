@@ -527,6 +527,7 @@ def print_mutation(hyp, results, yaml_file='hyp_evolved.yaml', bucket=''):
 
 
 def apply_classifier(x, model, img, im0, half):
+    preds_cls2 = []
     # applies a second stage classifier to yolo outputs
     im0 = [im0] if isinstance(im0, np.ndarray) else im0
     for i, d in enumerate(x):  # per image
@@ -556,8 +557,8 @@ def apply_classifier(x, model, img, im0, half):
                 if half:
                     b_img = b_img.half()
                 pred_cls2 = torch.cat([pred_cls2, model(b_img).argmax(1)])  # classifier prediction
-
-    return pred_cls2
+        preds_cls2.append(pred_cls2)
+    return preds_cls2
 
 
 def increment_path(path, exist_ok=True, sep=''):
