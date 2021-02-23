@@ -62,10 +62,12 @@ def detect():
         # Apply Classifier
         if classify and len(pred):
             pred_second_stage = apply_classifier(pred, modelc, img, im0s, half)
-            aesthetics = np.zeros((len(pred_second_stage), len(pred_second_stage[0]), 3))
-            for i in range(len(pred_second_stage)):
-                for j in range(len(pred_second_stage[0])):
-                    a_label = pred_second_stage[i][j]
+            aesthetics = []
+            # aesthetics = np.zeros((len(pred_second_stage), len(pred_second_stage[0]), 3))
+            for i in range(len(pred_second_stage)): #loop over images in batch
+                aesthetics.append(np.zeros((len(pred_second_stage[i]), 3))) # zero array of [dets, 3]
+                for j in range(len(pred_second_stage[i])): # loop over dets
+                    a_label = pred_second_stage[i][j] # det label
                     if a_label < 3:
                         aesthetics[i][j][a_label] = 1
 
