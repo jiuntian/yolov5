@@ -229,7 +229,7 @@ def load_classifier(name='resnet101', n=4):
 
     # Reshape output to n classes
     model.classifier[1] = nn.Sequential(
-        nn.Dropout(p=0.2),
+        # nn.Dropout(p=0.2),
         nn.Linear(in_features=model.classifier[1].in_features, out_features=3),
         nn.Sigmoid()
     )
