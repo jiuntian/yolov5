@@ -85,7 +85,7 @@ def detect():
                     result.append({
                         "image_id": int(p.name[:-4]),
                         "category_id": int(cls.item()) + 1,
-                        "aesthetic": aesthetics[i][j].astype(int).tolist() if classify else [0, 0, 0],
+                        "aesthetic": aesthetics[i][j].cpu().numpy().astype(int).tolist() if classify else [0, 0, 0],
                         "bbox": [xyxy[0].item(), xyxy[1].item(),
                                  xyxy[2].item(), xyxy[1].item(),
                                  xyxy[2].item(), xyxy[3].item(),
