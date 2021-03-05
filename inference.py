@@ -33,7 +33,7 @@ def detect():
     classify = opt.second_stage
     if classify:
         print("Enabled second stage classifier")
-        modelc = load_classifier(name='mobilenet_v2', n=4)  # initialize
+        modelc = load_classifier(name='mobilenet_v2', n=3)  # initialize
         modelc.load_state_dict(torch.load(opt.second_stage, map_location=device))
         modelc = modelc.to(device).eval()
         if half:
