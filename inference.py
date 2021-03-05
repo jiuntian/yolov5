@@ -62,14 +62,14 @@ def detect():
         # Apply Classifier
         if classify and len(pred):
             pred_second_stage = apply_classifier(pred, modelc, img, im0s, half)
-            aesthetics = []
+            aesthetics = pred_second_stage
             # aesthetics = np.zeros((len(pred_second_stage), len(pred_second_stage[0]), 3))
-            for i in range(len(pred_second_stage)): #loop over images in batch
-                aesthetics.append(np.zeros((len(pred_second_stage[i]), 3))) # zero array of [dets, 3]
-                for j in range(len(pred_second_stage[i])): # loop over dets
-                    a_label = pred_second_stage[i][j] # det label
-                    if a_label < 3:
-                        aesthetics[i][j][a_label] = 1
+            # for i in range(len(pred_second_stage)):  # loop over images in batch
+            #     aesthetics.append(np.zeros((len(pred_second_stage[i]), 3)))  # zero array of [dets, 3]
+            #     for j in range(len(pred_second_stage[i])):  # loop over dets
+            #         a_label = pred_second_stage[i][j]  # det label
+            #         if a_label < 3:
+            #             aesthetics[i][j][a_label] = 1
 
         # Process detections
         for i, det in enumerate(pred):  # detections per image
@@ -79,12 +79,12 @@ def detect():
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
             if len(det):
                 # Rescale boxes from img_size to im0 size
-                det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
+                det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape)#.round()
                 # Write results
                 for j, (*xyxy, conf, cls) in enumerate(det):
                     result.append({
                         "image_id": int(p.name[:-4]),
-                        "category_id": int(cls.item())+1,
+                        "category_id": int(cls.item()) + 1,
                         "aesthetic": aesthetics[i][j].astype(int).tolist() if classify else [0, 0, 0],
                         "bbox": [xyxy[0].item(), xyxy[1].item(),
                                  xyxy[2].item(), xyxy[1].item(),
@@ -110,7 +110,8 @@ if __name__ == '__main__':
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
     parser.add_argument('--export-dir', default='inference', help='save results to dir')
     parser.add_argument('--exist-ok', action='store_true', help='existing dir ok, do not increment')
-    parser.add_argument('--second-stage', type=str, default='', help='second stage model ckpt')  # file/folder, 0 for webcam
+    parser.add_argument('--second-stage', type=str, default='',
+                        help='second stage model ckpt')  # file/folder, 0 for webcam
     # python inference.py --source ../ictext/valtest --weights ../../Downloads/best.pt --exist-ok
     opt = parser.parse_args()
     print(opt)

@@ -556,8 +556,9 @@ def apply_classifier(x, model, img, im0, half):
                 b_img = torch.Tensor(ims[j * 8:j * 8 + 8]).to(d.device)
                 if half:
                     b_img = b_img.half()
-                pred_cls2 = torch.cat([pred_cls2, model(b_img).argmax(1)])  # classifier prediction
+                pred_cls2 = torch.cat([pred_cls2, (model(b_img) > 0.5).float()])  # classifier prediction
         preds_cls2.append(pred_cls2)
+    # print(preds_cls2)
     return preds_cls2
 
 
