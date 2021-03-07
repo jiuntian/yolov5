@@ -9,7 +9,7 @@ import torch.backends.cudnn as cudnn
 import numpy as np
 
 from models.experimental import attempt_load
-from utils.datasets import LoadImages
+from utils.datasets import LoadImages, LoadImagesEvalAI
 from utils.general import check_img_size, check_requirements, non_max_suppression, \
     scale_coords, increment_path, apply_classifier
 from utils.torch_utils import select_device, time_synchronized, load_classifier
@@ -39,7 +39,10 @@ def detect():
         if half:
             modelc.half()
     # cudnn.benchmark = True  # set True to speed up consant image size inference
-    dataset = LoadImages(source, img_size=imgsz, stride=stride)
+    if opt.evalai:
+        dataset = LoadImagesEvalAI(source, img_size=imgsz, stride=stride)
+    else:
+        dataset = LoadImages(source, img_size=imgsz, stride=stride)
 
     # Run inference
     if device.type != 'cpu':
@@ -110,6 +113,7 @@ if __name__ == '__main__':
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
     parser.add_argument('--export-dir', default='inference', help='save results to dir')
     parser.add_argument('--exist-ok', action='store_true', help='existing dir ok, do not increment')
+    parser.add_argument('--evalai', action='store_true', help='eval ai use images.json')
     parser.add_argument('--second-stage', type=str, default='',
                         help='second stage model ckpt')  # file/folder, 0 for webcam
     # python inference.py --source ../ictext/valtest --weights ../../Downloads/best.pt --exist-ok

@@ -1,6 +1,7 @@
 # Dataset utils and dataloaders
 
 import glob
+import json
 import logging
 import math
 import os
@@ -194,6 +195,51 @@ class LoadImages:  # for inference
         self.frame = 0
         self.cap = cv2.VideoCapture(path)
         self.nframes = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    def __len__(self):
+        return self.nf  # number of files
+
+
+class LoadImagesEvalAI:  # for inference
+    def __init__(self, path, img_size=640, stride=32):
+        p = str(Path(path).absolute())  # os-agnostic absolute path
+        f = open(path)
+        img_json = json.load(f)
+        files = [x['file_name'] for x in img_json['images']]
+
+        images = [x for x in files if x.split('.')[-1].lower() in img_formats]
+        ni = len(images)
+
+        self.img_size = img_size
+        self.stride = stride
+        self.files = images
+        self.nf = ni  # number of files
+        self.mode = 'image'
+        self.cap = None
+        assert self.nf > 0, f'No images or videos found in {p}. ' \
+                            f'Supported formats are:\nimages: {img_formats}\nvideos: {vid_formats}'
+
+    def __iter__(self):
+        self.count = 0
+        return self
+
+    def __next__(self):
+        if self.count == self.nf:
+            raise StopIteration
+        path = self.files[self.count]
+        # Read image
+        self.count += 1
+        img0 = cv2.imread(path)  # BGR
+        assert img0 is not None, 'Image Not Found ' + path
+
+        # Padded resize
+        img = letterbox(img0, self.img_size, stride=self.stride)[0]
+
+        # Convert
+        img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
+        img = np.ascontiguousarray(img)
+
+        return path, img, img0, self.cap
 
     def __len__(self):
         return self.nf  # number of files
