@@ -202,6 +202,7 @@ class LoadImages:  # for inference
 
 class LoadImagesEvalAI:  # for inference
     def __init__(self, path, img_size=640, stride=32):
+        path = "/data/" + path
         p = str(Path(path).absolute())  # os-agnostic absolute path
         f = open(path)
         img_json = json.load(f)
